@@ -22,9 +22,11 @@ h1{font-size:clamp(42px,7vw,68px);line-height:1.02;margin:18px 0}.hero h1 span{c
 <section class="tutor" id="tutor"><h2>🤖 AI Tutor</h2><div class="panel"><div class="chat" id="chat"><div class="msg ai">Hi! I'm Studivo. Ask me anything you're studying. 👋</div></div>
 <div class="composer"><input id="q" placeholder="e.g. Explain osmosis simply..." onkeydown="if(event.key==='Enter')ask()"><button id="ask" onclick="ask()">Ask</button></div><div class="status" id="status">AI is connected through a secure server when configured.</div></div></section>
 <script>
-const q=document.getElementById("q"),chat=document.getElementById("chat"),btn=document.getElementById("ask"),status=document.getElementById("status");
-function add(t,c){const d=document.createElement("div");d.className="msg "+c;d.textContent=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
-async function ask(){const text=q.value.trim();if(!text)return;add(text,"user");q.value="";btn.disabled=true;status.textContent="Studivo is thinking...";
-try{const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:text})});const data=await r.json();add(data.answer||data.error||"Something went wrong.","ai");}
-catch(e){add("I couldn't reach the Studivo server. Make sure the server is running.","ai")}btn.disabled=false;status.textContent="Ready";}
-</script></body></html>
+const q=document.getElementById("q"),chat=document.getElementById("chat");
+function add(t,c){const d=document.createElement("div");d.className="msg "+c;d.innerText=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight;}
+async function ask(){const text=q.value.trim();if(!text)return;add(text,"user");q.value="";
+try{const r=await fetch("https://onrender.com",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});
+const data=await r.json();if(data.reply){add(data.reply,"bot")}else{throw new Error()}}
+catch(e){add("I couldn't reach the Studivo server. Make sure the server is running.","bot")}}
+q.addEventListener("keydown",e=>{if(e.key==="Enter")ask()});
+</script>
