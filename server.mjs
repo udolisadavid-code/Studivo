@@ -1,50 +1,45 @@
 import express from 'express';
 import cors from 'cors';
-import { GoogleGenAI } from '@google/genai';
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Enable CORS so your frontend can communicate with this backend
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
-
-// Serve static files from your frontend public folder
 app.use(express.static('public'));
 
-// Initialize the Google Gemini client using your environment variable
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// The primary API route for your tutor chatbot
 app.post('/api/chat', async (req, res) => {
   try {
-    // Captures the message sent from your frontend input box
     const userMessage = req.body.message || req.body.prompt || req.body.text;
+    if (!userMessage) return res.status(400).json({ error: "No message provided" });
 
-    if (!userMessage) {
-      return res.status(400).json({ error: "No message provided" });
-    }
-
-    // Call Google's fast, free Gemini 2.5 Flash model
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: userMessage,
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    // Direct, standard web call to Google's official Gemini endpoint
+    const url = `https://googleapis.com{apiKey}`;
+    
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userMessage }] }]
+      })
     });
 
-    // We send back both common ChatGPT formats ('reply' and 'choices') 
-    // This ensures your frontend reads the response perfectly without breaking
+    const data = await response.json();
+    
+    // Safely extract the text response
+    const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process that response.";
+
     res.json({
-      reply: response.text,
-      choices: [{ message: { content: response.text } }]
+      reply: botReply,
+      choices: [{ message: { content: botReply } }]
     });
 
   } catch (error) {
-    console.error("Gemini Backend Error:", error);
-    res.status(500).json({ error: "The AI Tutor could not get a response right now." });
+    console.error("Server Error:", error);
+    res.status(500).json({ error: "Server connection failed" });
   }
 });
 
-// Start the server listening on the port Render assigns
-app.listen(PORT, () => {
-  console.log(`Studivo running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
