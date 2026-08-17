@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Studivo — AI Study Assistant</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f7f9fc;color:#111827}
+header{background:#fff;border-bottom:1px solid #e6eaf0}.nav{max-width:1100px;margin:auto;padding:17px 20px;display:flex;justify-content:space-between;align-items:center}.logo{font-size:26px;font-weight:900;color:#2563eb}.nav a{margin-left:22px;color:#4b5563;text-decoration:none;font-weight:700}
+.hero{max-width:1100px;margin:auto;padding:70px 20px 55px;text-align:center}.pill{display:inline-block;background:#eaf1ff;color:#2563eb;padding:7px 12px;border-radius:99px;font-size:13px;font-weight:800}
+h1{font-size:clamp(42px,7vw,68px);line-height:1.02;margin:18px 0}.hero h1 span{color:#2563eb}.hero p{max-width:650px;margin:0 auto 25px;color:#687385;font-size:18px}.btn{border:0;border-radius:12px;padding:13px 20px;background:#2563eb;color:#fff;font-weight:900;cursor:pointer}
+.features{max-width:1100px;margin:auto;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.feature{background:#fff;border:1px solid #e2e7ee;border-radius:17px;padding:20px}.feature b{display:block;margin:8px 0}.feature p{font-size:14px;color:#687385}
+.tutor{max-width:900px;margin:45px auto 80px;padding:0 20px}.tutor h2{font-size:32px}.panel{background:#fff;border:1px solid #e1e6ed;border-radius:20px;padding:18px;box-shadow:0 12px 35px #0000000a}.chat{height:390px;overflow:auto}.msg{max-width:82%;padding:13px 15px;border-radius:15px;margin:12px 0;white-space:pre-wrap}.ai{background:#eef4ff}.user{background:#2563eb;color:#fff;margin-left:auto}.composer{display:flex;gap:9px;margin-top:12px}.composer input{flex:1;padding:14px;border:1px solid #d5dce6;border-radius:12px;font-size:15px}.composer button{background:#2563eb;color:white;border:0;border-radius:12px;padding:0 20px;font-weight:900}.composer button:disabled{opacity:.5}.status{text-align:center;color:#8a94a3;font-size:12px;margin-top:9px}
+@media(max-width:750px){.features{grid-template-columns:1fr 1fr}.nav a{display:none}}@media(max-width:480px){.features{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div class="nav"><div class="logo">Studivo</div><div><a href="#features">Features</a><a href="#tutor">AI Tutor</a></div></div></header>
+<section class="hero"><div class="pill">AI-powered learning</div><h1>Study smarter.<br><span>Go further.</span></h1><p>Your AI study partner for JAMB, WAEC, NECO and everyday learning.</p><button class="btn" onclick="document.querySelector('#tutor').scrollIntoView({behavior:'smooth'})">Try AI Tutor</button></section>
+<section id="features" class="features">
+<div class="feature">🤖<b>AI Tutor</b><p>Ask questions and get step-by-step explanations.</p></div>
+<div class="feature">📝<b>Practice</b><p>Turn topics into practice questions.</p></div>
+<div class="feature">⏱️<b>CBT Mode</b><p>Prepare with timed exam-style practice.</p></div>
+<div class="feature">📊<b>Progress</b><p>Track scores and identify weak topics.</p></div>
+</section>
+<section class="tutor" id="tutor"><h2>🤖 AI Tutor</h2><div class="panel"><div class="chat" id="chat"><div class="msg ai">Hi! I'm Studivo. Ask me anything you're studying. 👋</div></div>
+<div class="composer"><input id="q" placeholder="e.g. Explain osmosis simply..." onkeydown="if(event.key==='Enter')ask()"><button id="ask" onclick="ask()">Ask</button></div><div class="status" id="status">AI is connected through a secure server when configured.</div></div></section>
+<script>
+const q=document.getElementById("q"),chat=document.getElementById("chat"),btn=document.getElementById("ask"),status=document.getElementById("status");
+function add(t,c){const d=document.createElement("div");d.className="msg "+c;d.textContent=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+async function ask(){const text=q.value.trim();if(!text)return;add(text,"user");q.value="";btn.disabled=true;status.textContent="Studivo is thinking...";
+try{const r=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:text})});const data=await r.json();add(data.answer||data.error||"Something went wrong.","ai");}
+catch(e){add("I couldn't reach the Studivo server. Make sure the server is running.","ai")}btn.disabled=false;status.textContent="Ready";}
+</script></body></html>
