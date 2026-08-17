@@ -1,18 +1,12 @@
 {
   "name": "studivo",
   "version": "1.0.0",
-  "description": "AI Tutor and study assistant web application",
-  "main": "server.mjs",
   "type": "module",
   "scripts": {
     "start": "node server.mjs"
   },
   "dependencies": {
-    "@google/genai": "*",
-    "cors": "*",
-    "express": "*"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
   }
 }
